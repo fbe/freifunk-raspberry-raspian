@@ -1,0 +1,60 @@
+---
+- hosts: freifunk-raspberry
+  remote_user: pi
+
+  handlers:
+    - name: Restart networking
+      service:
+        name: networking
+        state: restarted
+      become: true
+
+    - name: Restart sshd
+      service:
+        name: ssh
+        state: restarted
+      become: true
+
+
+  tasks:
+    - name: deploy ssh key
+      authorized_key:
+        user: pi
+        state: present
+        key: "{{ lookup('file', '/home/becker/.ssh/id_rsa.pub') }}"
+      
+    - name: Disable SSH Password Authentication
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: "^PasswordAuthentication"
+        line: "PasswordAuthentication no"
+        state: present
+      notify: Restart sshd
+      become: true
+
+    - name: Install VLAN package
+      apt:
+        name: vlan
+        state: installed
+      become: true
+
+    - name: Copy Network configuration files
+      copy:
+        src: "{{ item }}"
+        dest: "/etc/network/interfaces.d/"
+        owner: root
+        group: root
+        mode: 0644
+      become: true
+      with_fileglob:
+        'assets/interfaces/*.cfg'
+      notify: Restart networking
+
+    - name: Fix source-directory directive
+      lineinfile:
+        dest: /etc/network/interfaces
+        regexp: "^source-directory"
+        line: "source-directory /etc/network/interfaces.d/*"
+        state: present
+      notify: Restart networking
+      become: true
