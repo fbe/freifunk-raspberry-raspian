@@ -1,0 +1,11 @@
+auto br-client
+iface br-client inet manual
+        bridge_ports eth0.11
+        bridge_stp  off
+        bridge_maxwait 5
+
+
+auto eth0.11
+iface eth0.11 inet manual
+	vlan-raw-device eth0
+

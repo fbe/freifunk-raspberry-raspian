@@ -38,6 +38,24 @@
         state: installed
       become: true
 
+    - name: Install bridge-utils package
+      apt:
+        name: bridge-utils
+        state: installed
+      become: true
+
+    - name: Install batctl
+      apt:
+        name: batctl
+        state: installed
+      become: true
+
+    - name: Install fastd
+      apt:
+        name: fastd 
+        state: installed
+      become: true
+
     - name: Copy Network configuration files
       copy:
         src: "{{ item }}"
@@ -47,6 +65,6 @@
         mode: 0644
       become: true
       with_fileglob:
-        'assets/interfaces/*.cfg'
+        'assets/interfaces/*'
       notify: Restart networking
 
