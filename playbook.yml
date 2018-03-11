@@ -50,3 +50,11 @@
         'assets/interfaces/*.cfg'
       notify: Restart networking
 
+    - name: Fix source-directory directive
+      lineinfile:
+        dest: /etc/network/interfaces
+        regexp: "^source-directory"
+        line: "source-directory /etc/network/interfaces.d/*"
+        state: present
+      notify: Restart networking
+      become: true
